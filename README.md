@@ -18,13 +18,13 @@ into directories by base36 ID.
 Requires Python 3.12+.
 
 ```bash
-uv tool install git+https://github.com/your-org/lkr
+uv tool install git+https://github.com/roobie/lkr
 ```
 
 Or for development:
 
 ```bash
-git clone https://github.com/your-org/lkr
+git clone https://github.com/roobie/lkr
 cd lkr
 uv sync
 ```
