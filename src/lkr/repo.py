@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterator
 
 import yaml
+import re
 
 from lkr.entry import parse_entry, write_entry
 from lkr.errors import EntryNotFoundError, EntryParseError, RepoNotFoundError
@@ -92,9 +93,17 @@ class KnowledgeRepo:
             data = yaml.safe_load(f) or {}
         return RepoConfig(**data)
 
-    def entry_path(self, entry_id: EntryId) -> Path:
-        """Compute path for an entry: entries/{prefix}/{id}.md."""
-        return self.entries_dir / entry_id.prefix / f"{entry_id.value}.md"
+    def entry_path(self, entry_id: EntryId, slug: str | None = None) -> Path:
+        """Compute path for an entry: entries/{prefix}/{id}.md or {id}-{slug}.md."""
+        if slug:
+            return self.entries_dir / entry_id.prefix / f"{entry_id.value}-{slug}.md"
+        else:
+            return self.entries_dir / entry_id.prefix / f"{entry_id.value}.md"
+
+    def _slugify_title(self, title: str) -> str:
+        words = re.sub(r'[^a-zA-Z0-9\s]', '', title).split()
+        words = words[:8]
+        return '-'.join(w.lower() for w in words if w)
 
     def iter_entries(self) -> Iterator[Entry]:
         """Parse all .md files under entries/, yielding Entry objects."""
@@ -113,14 +122,26 @@ class KnowledgeRepo:
         except ValueError as e:
             raise EntryNotFoundError(raw_id) from e
 
-        path = self.entry_path(entry_id)
-        if not path.is_file():
+        prefix_dir = self.entries_dir / entry_id.prefix
+        if not prefix_dir.exists():
             raise EntryNotFoundError(raw_id)
+
+        # Try new format with slug
+        pattern = f"{entry_id.value}-*.md"
+        candidates = list(prefix_dir.glob(pattern))
+        if candidates:
+            path = candidates[0]  # Assume first, or could sort
+        else:
+            # Fallback to old format
+            path = prefix_dir / f"{entry_id.value}.md"
+            if not path.is_file():
+                raise EntryNotFoundError(raw_id)
 
         return parse_entry(path)
 
     def save_entry(self, entry: Entry) -> Path:
         """Save an entry to its correct location and return the path."""
-        path = self.entry_path(entry.front_matter.id)
+        slug = self._slugify_title(entry.front_matter.title)
+        path = self.entry_path(entry.front_matter.id, slug)
         write_entry(entry, path)
         return path

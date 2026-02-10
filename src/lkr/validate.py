@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
+import re
 
 from lkr.entry import parse_entry
 from lkr.errors import EntryParseError
@@ -64,12 +65,15 @@ def validate_repo(repo: "KnowledgeRepo") -> ValidationReport:
         fm = entry.front_matter
         rel_path = str(md_file.relative_to(repo.root))
 
-        # 4. File naming — filename matches ID
-        expected_filename = f"{fm.id.value}.md"
+        # 4. File naming — filename matches ID and title slug
+        words = re.sub(r'[^a-zA-Z0-9\s]', '', fm.title).split()
+        words = words[:8]
+        slug = '-'.join(w.lower() for w in words if w)
+        expected_filename = f"{fm.id.value}-{slug}.md" if slug else f"{fm.id.value}.md"
         if md_file.name != expected_filename:
             report.add_error(
                 rel_path,
-                f"Filename {md_file.name!r} doesn't match ID {fm.id.value!r}",
+                f"Filename {md_file.name!r} doesn't match ID {fm.id.value!r} and title slug",
             )
 
         # 5. Directory structure — parent dir matches ID prefix
