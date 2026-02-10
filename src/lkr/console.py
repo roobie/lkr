@@ -42,9 +42,7 @@ def print_entry_summary(entry: "Entry") -> None:
 
 def print_validation_report(report: "ValidationReport") -> None:
     if report.is_clean:
-        print_success(
-            f"All {report.entries_checked} entries passed validation."
-        )
+        print_success(f"All {report.entries_checked} entries passed validation.")
         return
 
     table = Table(title="Validation Report")

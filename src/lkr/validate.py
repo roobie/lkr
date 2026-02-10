@@ -47,7 +47,9 @@ def validate_repo(repo: "KnowledgeRepo") -> ValidationReport:
     """Run all validation checks and return a report."""
     report = ValidationReport()
     entries: list[Entry] = []
-    entry_files = sorted(repo.entries_dir.rglob("*.md")) if repo.entries_dir.exists() else []
+    entry_files = (
+        sorted(repo.entries_dir.rglob("*.md")) if repo.entries_dir.exists() else []
+    )
 
     # 1. Schema compliance — try to parse each entry
     for md_file in entry_files:
@@ -82,16 +84,26 @@ def validate_repo(repo: "KnowledgeRepo") -> ValidationReport:
     seen_ids: dict[str, str] = {}
     for entry in entries:
         id_str = entry.front_matter.id.value
-        rel = str(entry.source_path.relative_to(repo.root)) if entry.source_path else id_str
+        rel = (
+            str(entry.source_path.relative_to(repo.root))
+            if entry.source_path
+            else id_str
+        )
         if id_str in seen_ids:
-            report.add_error(rel, f"Duplicate ID {id_str!r} (also in {seen_ids[id_str]})")
+            report.add_error(
+                rel, f"Duplicate ID {id_str!r} (also in {seen_ids[id_str]})"
+            )
         else:
             seen_ids[id_str] = rel
 
     # 3. References — related IDs exist
     for entry in entries:
         if entry.front_matter.related:
-            rel = str(entry.source_path.relative_to(repo.root)) if entry.source_path else ""
+            rel = (
+                str(entry.source_path.relative_to(repo.root))
+                if entry.source_path
+                else ""
+            )
             for ref in entry.front_matter.related:
                 if ref.value not in seen_ids:
                     report.add_error(rel, f"Related ID {ref.value!r} not found")
@@ -110,6 +122,8 @@ def validate_repo(repo: "KnowledgeRepo") -> ValidationReport:
         if fm.updated is None:
             age = (today - fm.created).days
             if age > 180:
-                report.add_warning(rel, f"Entry has no 'updated' date and is {age} days old")
+                report.add_warning(
+                    rel, f"Entry has no 'updated' date and is {age} days old"
+                )
 
     return report

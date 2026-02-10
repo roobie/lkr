@@ -77,7 +77,9 @@ class KnowledgeRepo:
         if gitignore_path.exists():
             existing = gitignore_path.read_text()
             if ".knowledge/index.json" not in existing:
-                gitignore_path.write_text(existing.rstrip() + "\n" + _GITIGNORE_ADDITIONS)
+                gitignore_path.write_text(
+                    existing.rstrip() + "\n" + _GITIGNORE_ADDITIONS
+                )
         else:
             gitignore_path.write_text(_GITIGNORE_ADDITIONS)
 

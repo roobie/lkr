@@ -109,9 +109,7 @@ def _make_result(path: Path, query: str) -> SearchResult | None:
     # Collect matching lines
     query_lower = query.lower()
     matches = [
-        line
-        for line in post.content.splitlines()
-        if query_lower in line.lower()
+        line for line in post.content.splitlines() if query_lower in line.lower()
     ]
 
     return SearchResult(

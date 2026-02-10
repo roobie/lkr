@@ -24,7 +24,9 @@ def build_index(repo: "KnowledgeRepo") -> Index:
 
         idx_entry = IndexEntry(
             id=id_str,
-            path=str(entry.source_path.relative_to(repo.root)) if entry.source_path else "",
+            path=str(entry.source_path.relative_to(repo.root))
+            if entry.source_path
+            else "",
             title=fm.title,
             type=fm.type.value,
             tags=[t.value for t in fm.tags],

@@ -30,7 +30,9 @@ def test_new_entry_with_author(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
     runner.invoke(cli, ["init", "Test KB"])
-    result = runner.invoke(cli, ["new", "guide", "My Guide", "-t", "dev", "-a", "alice"])
+    result = runner.invoke(
+        cli, ["new", "guide", "My Guide", "-t", "dev", "-a", "alice"]
+    )
     assert result.exit_code == 0
 
 

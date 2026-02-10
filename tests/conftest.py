@@ -53,7 +53,9 @@ def populated_repo(tmp_repo: KnowledgeRepo) -> KnowledgeRepo:
 
     entries = [
         create_entry(EntryType.Q_AND_A, "How to fix ImportError", ["python", "import"]),
-        create_entry(EntryType.GUIDE, "Getting Started with Docker", ["docker", "devops"]),
+        create_entry(
+            EntryType.GUIDE, "Getting Started with Docker", ["docker", "devops"]
+        ),
         create_entry(EntryType.NOTE, "Python GIL Notes", ["python", "concurrency"]),
     ]
 
